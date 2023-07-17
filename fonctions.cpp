@@ -4,6 +4,8 @@
 
 using namespace std;
 
+
+
 double rejetgaussien(double moyenne, double variance) { // Fournit valeur alea. de densite gaussienne
   double x, y, ecarttype = sqrt(variance); // avec variance var et moyenne 0.
   do { // On prend x dans l'intervalle [-5sigma,5sigma], on suppose que la
@@ -12,6 +14,9 @@ double rejetgaussien(double moyenne, double variance) { // Fournit valeur alea. 
   } while(y > exp(-(x-moyenne)*(x-moyenne)/(2.*variance)));
   return x;
 }
+
+
+
 
 double distribution_lorentzienne(double moyenne, double largeur) {
   double x;

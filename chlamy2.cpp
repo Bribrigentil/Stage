@@ -2,7 +2,7 @@
 #include<ostream>
 #include<cmath>
 #include"fonctions.h"
-#include"chlamy.h"
+#include"chlamy2.h"
 
 using namespace std;
 
@@ -102,11 +102,11 @@ bool chlamy::sphere_dure(vector<chlamy> groupe) {
 }
 
 
-void chlamy::reorientation(double Taillesurfacex, double Taillesurfacey) {
+void chlamy::brownien_avec_collision(double Taillesurfacex, double Taillesurfacey) {
 
   double theta;
 
-  //L'angle theta est modifié afin que les chlamys se reorientent en fuyant la lumière
+  //L'angle theta est légèrement modifié entre chaque itération
   theta = distribution_lorentzienne(0, 1.2);
 
   //v0 = v0 + rejetgaussien(0, v0/100.);
@@ -116,18 +116,18 @@ void chlamy::reorientation(double Taillesurfacex, double Taillesurfacey) {
 
 
 
-void chlamy::diffusion_angulaire(double Dr) {
+void chlamy::brownien_sans_collision(vector<chlamy> groupe, double Taillesurfacex, double Taillesurfacey, double k) {
 
-  //On ajoute à l'angle theta un petit angle dtheta à chaque itération. C'est une diffusion angulaire.
-  double theta = atan2(vy,vx) + rejetgaussien(0, 2*Dr);
-  vx = v0*cos(theta);
-  vy = v0*sin(theta);
-}
+  double theta;
+
+  //L'angle theta est légèrement modifié entre chaque itération
+  theta = distribution_lorentzienne(0, 1.2);
+
+  //v0 = v0 + rejetgaussien(0, v0/100.);
+  vx = v0 * cos(theta);
+  vy = v0 * sin(theta);
 
 
-
-void chlamy::non_collision (vector<chlamy> groupe, double k) {
-  
   //On peut alterner cette partie de la fonction brownien avec l'utilisation de la fonction sphere_dure dans la fonction main
   for (unsigned int i= 0; i < groupe.size(); i++) {
     if ((norm(groupe[i].x-x-vx, groupe[i].y-y-vy) < (groupe[i].Taille+Taille)/2) && (norm(groupe[i].x-x, groupe[i].y-y) > 0)) {

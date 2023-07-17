@@ -7,7 +7,7 @@
 #include<iomanip>
 #include<SFML/Graphics.hpp>
 #include"fonctions.h"
-#include"chlamy.h"
+#include"chlamy2.h"
 
 using namespace std;
 
@@ -28,7 +28,7 @@ int main() {
 
   //Définition de la taille de la simulation
   double Taillesurfacex = 1600;
-  double Taillesurfacey = 150;
+  double Taillesurfacey = 100;
 
   //Définition de la porte
   double Tailleporte =10, Angleporte = M_PI/4;
@@ -42,14 +42,8 @@ int main() {
   //Nombre de chlamy dans le groupe
   int N = 500;
 
-  //Coeffeicient de diffusion angulaire
-  double Dr = 0.37/framerate;
-
-  //Taux de changement de direction pour une algue (en seconde) avec framerate 
-  double alpha = 0.33/framerate;
-  
   //Constante de ressort de répulsion entre chlamys
-  double k = 0.1;
+  double k = 0.2;
 
   
   for(int i = 0; i < N; i++) {
@@ -124,7 +118,7 @@ int main() {
     text.setFont(font);  //on définit la police du texte
     text.setString(s.str());   //on remplit le texte avec le flux convertit en string
     text.setCharacterSize(10);
-    text.setPosition(1300.f,Taillesurfacey-20.f);
+    text.setPosition(1300.f,80.f);
     text.setColor(sf::Color(0,0,0));
     window.draw(text);  
       
@@ -139,24 +133,28 @@ int main() {
     //Premier comportement des chlamys
     for (int i = 0; i < N; i++) {
 
+      //Taux de changement de direction pour une aluge (en seconde) avec framerate 
+      double alpha = 0.33;
       double p = drand48();
 
       //Pour représenter la persistence, on inclue une probabilité de modifier la vitesse d'une chlamy
       if (p < alpha)
-	groupe[i].reorientation(Taillesurfacex, Taillesurfacey);
-      groupe[i].diffusion_angulaire(Dr);
-      groupe[i].non_collision(groupe, k);
+	groupe[i].brownien_sans_collision(groupe, Taillesurfacex, Taillesurfacey, k);
+
+      //Si la chlamy se dirige sur un mur, elle attend une nouvelle orientation de vitesse
+      if ((groupe[i].enceinte(Tailleporte, Angleporte, Taillesurfacex, Taillesurfacey) == false)) {
+	// || (groupe[i].sphere_dure(groupe) == true)
+	groupe[i].vx = 0;
+	groupe[i].vy = 0;
+      }
     }
 
 
 
     //Mise à jour de la position des oiseaux
     for (int i = 0; i < N; i++) {
-      if ((groupe[i].enceinte(Tailleporte, Angleporte, Taillesurfacex, Taillesurfacey) == true)) {
-      // || (groupe[i].sphere_dure(groupe) == true)
-	groupe[i].x = groupe[i].x + groupe[i].vx; //position selon x
-	groupe[i].y = groupe[i].y + groupe[i].vy; //position selon y
-      }
+      groupe[i].x = groupe[i].x + groupe[i].vx; //position selon x
+      groupe[i].y = groupe[i].y + groupe[i].vy; //position selon y
 
       //condition périodique de la surface SFML selon x
       if (groupe[i].x < -2*Taillesurfacex)
@@ -171,7 +169,6 @@ int main() {
 	groupe[i].y -= Taillesurfacey;
     }
   }
+
   return 0;
 }
-
-  

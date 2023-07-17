@@ -6,13 +6,14 @@
 #include<string>
 #include<iomanip>
 #include"fonctions.h"
-#include"chlamy.h"
+#include"chlamy2.h"
 
 using namespace std;
 
 
 int main() {
 
+  
   //Initialisation de la graine des processus aléatoires
   srand48(time(NULL));
 
@@ -20,6 +21,7 @@ int main() {
   //Variables et paramètres temporels de la simulation
   int t = 0;
   int framerate = 20;
+
 
   //Définition de la taille de la simulation
   double Taillesurfacex = 1600;
@@ -37,31 +39,25 @@ int main() {
   //Nombre de chlamy dans le groupe
   int N = 10;
 
-  //Coefficient de diffusion angulaire
-  double Dr = 0.37/framerate;
-
-  //Taux de changement de direction des chlamys
-  double alpha = 0.33/framerate;
-
   //Constante de ressort de répulsion entre chlamys
   double k = 0.15;
 
 
-  //On ouvre un fichier pour stocker des informations sur le programme
+  //On ouvre des fichiers pour stocker des informations sur le programme
   fstream fich_parametre;
 
   fich_parametre.open("parametres.txt", ios::out);
   fich_parametre <<  "Taille_porte Angle_Porte Vitesse_moyenne N k"  << endl << Tailleporte << " " << Angleporte << " " << vmoy << " " << N << " " << k << endl;
   fich_parametre.close();
 
-  
+
   vector<fstream> coordonnees;
   for (int i = 0; i < N; i++) {
     coordonnees.push_back(fstream());
     coordonnees[i].open("particule_" + to_string(i) + ".txt", ios::out);
     coordonnees[i] << "frame x y" << endl;
   }
-
+  
   
   for(int i = 0; i < N; i++) {
     chlamy C(groupe, Taillesurfacex, Taillesurfacey, vmoy);
@@ -69,10 +65,10 @@ int main() {
   }
 
   
-  //On fait tourner le programme pendant 40000 frames
+  //On fait tourner le programme pendant 5000  frames
   for (unsigned int frame = 0; frame < 5000; frame++) {
 
-
+    
     for (int i = 0; i < N; i++) {
       coordonnees[i] << frame << " " << groupe[i].x << " " << groupe[i].y << endl;
     }
@@ -83,24 +79,26 @@ int main() {
     //Premier comportement des chlamys
     for (int i = 0; i < N; i++) {
 
+      //Taux de changement de direction pour une aluge (en seconde) avec framerate 
+      double alpha = 0.33;
       double p = drand48();
 
       //Pour représenter la persistence, on inclue une probabilité de modifier la vitesse d'une chlamy
       if (p < alpha)
-	groupe[i].reorientation(Taillesurfacex, Taillesurfacey);
-      groupe[i].diffusion_angulaire(Dr);
-      groupe[i].non_collision(groupe, k);
-    }
+	groupe[i].brownien_sans_collision(groupe, Taillesurfacex, Taillesurfacey, k);
 
+      //Si la chlamy se dirige sur un mur, elle attend une nouvelle orientation de vitesse
+      if ((groupe[i].enceinte(Tailleporte, Angleporte, Taillesurfacex, Taillesurfacey) == false)) {
+	groupe[i].vx = 0;
+	groupe[i].vy = 0;
+      }
+    }
 
 
     //Mise à jour de la position des oiseaux
     for (int i = 0; i < N; i++) {
-      if ((groupe[i].enceinte(Tailleporte, Angleporte, Taillesurfacex, Taillesurfacey) == true)) {
-      // || (groupe[i].sphere_dure(groupe) == true)
-	groupe[i].x = groupe[i].x + groupe[i].vx; //position selon x
-	groupe[i].y = groupe[i].y + groupe[i].vy; //position selon y
-      }
+      groupe[i].x = groupe[i].x + groupe[i].vx; //position selon x
+      groupe[i].y = groupe[i].y + groupe[i].vy; //position selon y
 
       //condition périodique de la surface SFML selon x
       if (groupe[i].x < -2*Taillesurfacex)
@@ -118,9 +116,6 @@ int main() {
 
   for (int i = 0; i < N; i++)
     coordonnees[i].close();
-  
+
   return 0;
 }
-
-
-  

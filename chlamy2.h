@@ -28,9 +28,8 @@ public:
   //Premier comportement des chlamys
     bool enceinte(double Tailleporte, double Angleporte, double Taillesurfacex, double Taillesurfacey);
   bool sphere_dure(vector<chlamy> groupe);
-  void reorientation(double Taillesurfacex, double Taillesurfacey);
-  void diffusion_angulaire(double Dr);
-  void non_collision(vector<chlamy> groupe, double k);
+  void brownien_avec_collision(double Taillesurfacex, double Taillesurfacey);
+  void brownien_sans_collision(vector<chlamy> groupe, double Taillesurfacex, double Taillesurfacey, double k);
 
   //Deuxième comportement des chlamys
 
